@@ -4,8 +4,13 @@ FROM alpine:latest
 RUN apk add --no-cache curl
 
 # Configurar el cron job (Minuto Hora Dia Mes DiaSemana)
-# Ejecuta a las 03:00 AM UTC todos los días.
-RUN echo "0 3 * * * curl -X POST \${DONACIONES_URL}/api/internal/cron/matchmaking -H \"X-API-KEY: \${CRON_API_KEY}\" && curl -X POST \${DONACIONES_URL}/api/internal/cron/inactividad -H \"X-API-KEY: \${CRON_API_KEY}\"" > /etc/crontabs/root
+
+# PROD: Ejecuta a las 03:00 AM UTC todos los días.
+# RUN echo "0 3 * * * curl -X POST \${DONACIONES_URL}/api/internal/cron/matchmaking -H \"X-API-KEY: \${CRON_API_KEY}\" && curl -X POST \${DONACIONES_URL}/api/internal/cron/inactividad -H \"X-API-KEY: \${CRON_API_KEY}\"" > /etc/crontabs/root
+
+# TEST: Expresión cron: */2 * * * * (Cada 2 minutos)
+RUN echo "*/2 * * * * curl -X POST \${DONACIONES_URL}/api/internal/cron/matchmaking -H \"X-API-KEY: \${CRON_API_KEY}\" && curl -X POST \${DONACIONES_URL}/api/internal/cron/inactividad -H \"X-API-KEY: \${CRON_API_KEY}\"" > /etc/crontabs/root
+
 
 # Iniciar el servicio crond de Alpine en primer plano (-f) para mantener el contenedor vivo
 CMD ["crond", "-f", "-d", "8"]
